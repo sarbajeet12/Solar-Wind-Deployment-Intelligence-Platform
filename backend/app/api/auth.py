@@ -14,7 +14,8 @@ from app.auth.password import (
     hash_password,
     verify_password,
     create_access_token,
-    get_current_user
+    get_current_user,
+    admin_required
 )
 
 router = APIRouter(
@@ -94,3 +95,13 @@ def login(
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+@router.get("/admin")
+def admin_dashboard(
+    current_user: User = Depends(admin_required)
+):
+    return {
+        "message": "Welcome Admin!",
+        "admin": current_user.full_name,
+        "email": current_user.email
+    }

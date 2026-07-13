@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 
 function Login() {
+    const navigate = useNavigate();
+
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
@@ -31,11 +34,15 @@ function Login() {
 
             alert("Login Successful!");
 
-            console.log(response.data);
+            navigate("/dashboard");
+
         } catch (error) {
             console.error(error);
 
-            alert("Invalid Username or Password");
+            alert(
+                error.response?.data?.detail ||
+                "Invalid Username or Password"
+            );
         }
     };
 
@@ -108,6 +115,18 @@ function Login() {
                 >
                     Login
                 </button>
+
+                <p
+                    style={{
+                        textAlign: "center",
+                        marginTop: "10px",
+                    }}
+                >
+                    Don't have an account?{" "}
+                    <Link to="/register">
+                        Register
+                    </Link>
+                </p>
             </form>
         </div>
     );

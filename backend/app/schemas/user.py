@@ -13,6 +13,18 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+
+class UserUpdate(BaseModel):
+    full_name: str
+ 
+
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str

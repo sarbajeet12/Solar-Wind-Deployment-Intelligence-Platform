@@ -28,20 +28,27 @@ def create_project(
     db: Session = Depends(get_db),
     current_user: User = Depends(admin_required)
 ):
+    try:
+        new_project = Project(
+            name=project.name,
+            description=project.description,
+            location=project.location,
+            energy_type=project.energy_type,
+            created_by=current_user.id
+        )
 
-    new_project = Project(
-        name=project.name,
-        description=project.description,
-        location=project.location,
-        energy_type=project.energy_type,
-        created_by=current_user.id
-    )
+        db.add(new_project)
+        db.commit()
+        db.refresh(new_project)
 
-    db.add(new_project)
-    db.commit()
-    db.refresh(new_project)
+        return new_project
 
-    return new_project
+    except Exception as e:
+        db.rollback()
+        print("\n========== PROJECT CREATE ERROR ==========")
+        print(e)
+        print("==========================================\n")
+        raise
 
 
 @router.get("/", response_model=list[ProjectResponse])
@@ -49,7 +56,6 @@ def get_projects(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-
     return db.query(Project).all()
 
 
@@ -59,7 +65,6 @@ def get_project(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-
     project = db.query(Project).filter(
         Project.id == project_id
     ).first()
@@ -80,7 +85,6 @@ def update_project(
     db: Session = Depends(get_db),
     current_user: User = Depends(admin_required)
 ):
-
     project = db.query(Project).filter(
         Project.id == project_id
     ).first()
@@ -109,7 +113,6 @@ def delete_project(
     db: Session = Depends(get_db),
     current_user: User = Depends(admin_required)
 ):
-
     project = db.query(Project).filter(
         Project.id == project_id
     ).first()

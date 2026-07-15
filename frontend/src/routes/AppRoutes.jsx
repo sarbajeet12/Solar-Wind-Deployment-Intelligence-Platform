@@ -8,6 +8,10 @@ import {
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
+import Projects from "../pages/Projects";
+import Sites from "../pages/Sites";
+import Profile from "../pages/Profile";
+import ChangePassword from "../pages/ChangePassword";
 
 function ProtectedRoute({ children }) {
     const token = localStorage.getItem("access_token");
@@ -40,6 +44,42 @@ function AppRoutes() {
                     element={
                         <ProtectedRoute>
                             <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/projects"
+                    element={
+                        <ProtectedRoute>
+                            <Projects />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/sites"
+                    element={
+                        <ProtectedRoute>
+                            <Sites />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/change-password"
+                    element={
+                        <ProtectedRoute>
+                            <ChangePassword />
                         </ProtectedRoute>
                     }
                 />

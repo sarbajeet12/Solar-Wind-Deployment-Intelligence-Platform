@@ -1,3 +1,4 @@
+import Navbar from "../components/Navbar";
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
@@ -16,6 +17,10 @@ function Sites() {
         project_id: ""
     });
 
+    const [editingId, setEditingId] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [message, setMessage] = useState("");
+
     useEffect(() => {
         fetchSites();
         fetchProjects();
@@ -33,33 +38,82 @@ function Sites() {
     };
 
     const fetchProjects = async () => {
-    try {
-        console.log("Token:", localStorage.getItem("access_token"));
-
-        const response = await api.get("/projects/");
-
-        console.log("Projects:", response.data);
-
-        setProjects(response.data);
-
-    } catch (error) {
-        console.log("Status:", error.response?.status);
-        console.log("Response:", error.response?.data);
-        console.error(error);
-    }
-};
-
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        try {
+            const response = await api.get("/projects/");
+            setProjects(response.data);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleChange = (e) => {
+    setFormData({
+        ...formData,
+        [e.target.name]: e.target.value
+    });
+};
 
-        try {
+    const handleEdit = (site) => {
+
+    setEditingId(site.id);
+    setIsEditing(true);
+
+    setFormData({
+        site_name: site.site_name,
+        latitude: site.latitude,
+        longitude: site.longitude,
+        state: site.state,
+        district: site.district,
+        energy_type: site.energy_type,
+        project_id: String(site.project_id)
+    });
+
+    setMessage("Editing site...");
+};
+
+const handleDelete = async (id) => {
+
+    if (!window.confirm("Are you sure you want to delete this site?")) {
+        return;
+    }
+
+    try {
+
+        await api.delete(`/sites/${id}`);
+
+        setMessage("Site deleted successfully.");
+
+        fetchSites();
+
+    } catch (error) {
+
+        setMessage(
+            error.response?.data?.detail ||
+            "Unable to delete site."
+        );
+
+    }
+
+};
+
+const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+
+        if (isEditing) {
+
+            await api.put(`/sites/${editingId}`, {
+                ...formData,
+                latitude: parseFloat(formData.latitude),
+                longitude: parseFloat(formData.longitude),
+                project_id: parseInt(formData.project_id),
+                status: "Pending"
+            });
+
+            setMessage("Site updated successfully.");
+
+        } else {
 
             await api.post("/sites/", {
                 ...formData,
@@ -68,34 +122,51 @@ function Sites() {
                 project_id: parseInt(formData.project_id)
             });
 
-            alert("Site created successfully.");
-
-            setFormData({
-                site_name: "",
-                latitude: "",
-                longitude: "",
-                state: "",
-                district: "",
-                energy_type: "Solar",
-                project_id: ""
-            });
-
-            fetchSites();
-
-        } catch (error) {
-            console.error(error);
-            alert("Unable to create site.");
+            setMessage("Site created successfully.");
         }
-    };
+
+        setFormData({
+            site_name: "",
+            latitude: "",
+            longitude: "",
+            state: "",
+            district: "",
+            energy_type: "Solar",
+            project_id: ""
+        });
+
+        setEditingId(null);
+        setIsEditing(false);
+
+        await fetchSites();
+
+    } catch (error) {
+
+        console.error(error);
+
+        setMessage(
+            error.response?.data?.detail ||
+            "Operation failed."
+        );
+
+    }
+};
 
     if (loading) {
         return <h2>Loading...</h2>;
     }
 
     return (
+        <>
+            <Navbar />
+
         <div style={{ padding: "40px" }}>
 
             <h1>Site Management</h1>
+
+            <h2>
+                {isEditing ? "Update Site" : "Create Site"}
+            </h2>
 
             <form onSubmit={handleSubmit}>
 
@@ -206,10 +277,51 @@ function Sites() {
                 <br />
 
                 <button type="submit">
-                    Create Site
+                    {isEditing ? "Update Site" : "Create Site"}
                 </button>
 
+                {isEditing && (
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsEditing(false);
+                            setEditingId(null);
+
+                            setFormData({
+                                site_name: "",
+                                latitude: "",
+                                longitude: "",
+                                state: "",
+                                district: "",
+                                energy_type: "Solar",
+                                project_id: ""
+                            });
+
+                            setMessage("");
+                        }}
+                        style={{ marginLeft: "10px" }}
+                    >
+                        Cancel
+                    </button>
+                )}
+
             </form>
+
+            {message && (
+                <p
+                    style={{
+                        color:
+                            message.includes("failed") ||
+                            message.includes("Unable")
+                                ? "red"
+                                : "green",
+                        marginTop: "20px",
+                        fontWeight: "bold"
+                    }}  
+                >
+                    {message}
+                </p>
+            )}
 
             <hr />
 
@@ -239,6 +351,7 @@ function Sites() {
                             <th>Energy</th>
                             <th>Status</th>
                             <th>Project ID</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
 
@@ -246,7 +359,7 @@ function Sites() {
 
                         {sites.map((site) => (
 
-                            <tr key={site.id}>
+                           <tr key={site.id}>
                                 <td>{site.id}</td>
                                 <td>{site.site_name}</td>
                                 <td>{site.latitude}</td>
@@ -256,6 +369,29 @@ function Sites() {
                                 <td>{site.energy_type}</td>
                                 <td>{site.status}</td>
                                 <td>{site.project_id}</td>
+
+                                <td>
+
+                                    <button
+                                        onClick={() => handleEdit(site)}
+                                    >
+                                        Edit
+                                    </button>
+
+                                    {" "}
+
+                                    <button
+                                        onClick={() => handleDelete(site.id)}
+                                        style={{
+                                            backgroundColor: "red",
+                                            color: "white"
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+
+                                </td>
+
                             </tr>
 
                         ))}
@@ -267,6 +403,7 @@ function Sites() {
             )}
 
         </div>
+        </>
     );
 }
 

@@ -1,3 +1,4 @@
+import Navbar from "../components/Navbar";
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
@@ -47,53 +48,56 @@ function Profile() {
     };
 
     return (
-        <div style={{ padding: "40px" }}>
-            <h1>My Profile</h1>
+        <>
+            <Navbar />
+                <div style={{ padding: "40px" }}>
+                    <h1>My Profile</h1>
 
-            <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit}>
 
-                <div style={{ marginBottom: "15px" }}>
-                    <label>Full Name</label>
-                    <br />
-                    <input
-                        type="text"
-                        name="full_name"
-                        value={user.full_name}
-                        onChange={handleChange}
-                    />
+                        <div style={{ marginBottom: "15px" }}>
+                            <label>Full Name</label>
+                            <br />
+                            <input
+                                type="text"
+                                name="full_name"
+                                value={user.full_name}
+                                onChange={handleChange}
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: "15px" }}>
+                            <label>Email</label>
+                            <br />
+                            <input
+                                type="email"
+                                value={user.email}
+                                disabled
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: "15px" }}>
+                            <label>Role</label>
+                            <br />
+                            <input
+                                type="text"
+                                value={user.role}
+                                disabled
+                            />
+                        </div>
+
+                        <button type="submit">
+                            Update Profile
+                        </button>
+
+                    </form>
+
+                    {message && (
+                        <p>{message}</p>
+                    )}
                 </div>
-
-                <div style={{ marginBottom: "15px" }}>
-                    <label>Email</label>
-                    <br />
-                    <input
-                        type="email"
-                        value={user.email}
-                        disabled
-                    />
-                </div>
-
-                <div style={{ marginBottom: "15px" }}>
-                    <label>Role</label>
-                    <br />
-                    <input
-                        type="text"
-                        value={user.role}
-                        disabled
-                    />
-                </div>
-
-                <button type="submit">
-                    Update Profile
-                </button>
-
-            </form>
-
-            {message && (
-                <p>{message}</p>
-            )}
-        </div>
-    );
+            </>
+        );
 }
 
 export default Profile;

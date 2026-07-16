@@ -26,17 +26,29 @@ function AppRoutes() {
 
                 <Route
                     path="/"
-                    element={<Navigate to="/login" replace />}
+                    element={
+                        localStorage.getItem("access_token")
+                            ? <Navigate to="/dashboard" replace />
+                            : <Navigate to="/login" replace />
+                    }
                 />
 
                 <Route
                     path="/login"
-                    element={<Login />}
+                    element={
+                        localStorage.getItem("access_token")
+                            ? <Navigate to="/dashboard" replace />
+                            : <Login />
+                    }
                 />
 
                 <Route
                     path="/register"
-                    element={<Register />}
+                   element={
+                        localStorage.getItem("access_token")
+                            ? <Navigate to="/dashboard" replace />
+                            : <Register />
+                    }
                 />
 
                 <Route

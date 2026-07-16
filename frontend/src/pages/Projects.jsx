@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import Navbar from "../components/Navbar";
 
 function Projects() {
     const [projects, setProjects] = useState([]);
@@ -21,6 +22,15 @@ function Projects() {
     useEffect(() => {
         fetchProjects();
     }, []);
+
+    const showMessage = (text, error = false) => {
+        setMessage(text);
+        setIsError(error);
+
+        setTimeout(() => {
+            setMessage("");
+        }, 3000);
+    };
 
     const fetchProjects = async () => {
         try {
@@ -51,8 +61,7 @@ function Projects() {
             energy_type: project.energy_type
         });
 
-        setMessage("Editing project...");
-        setIsError(false);
+        showMessage("Editing project...");
     };
 
     const handleDelete = async (id) => {
@@ -63,17 +72,17 @@ function Projects() {
         try {
             await api.delete(`/projects/${id}`);
 
-            setMessage("Project deleted successfully.");
-            setIsError(false);
+            showMessage("Project deleted successfully.");
 
             await fetchProjects();
 
         } catch (error) {
-            setMessage(
+
+            showMessage(
                 error.response?.data?.detail ||
-                "Unable to delete project."
+                "Unable to delete project.",
+                true
             );
-            setIsError(true);
         }
     };
 
@@ -89,16 +98,14 @@ function Projects() {
                     status: "Planning"
                 });
 
-                setMessage("Project updated successfully.");
+                showMessage("Project updated successfully.");
 
             } else {
 
                 await api.post("/projects/", formData);
 
-                setMessage("Project created successfully.");
+                showMessage("Project created successfully.");
             }
-
-            setIsError(false);
 
             setFormData({
                 name: "",
@@ -114,12 +121,11 @@ function Projects() {
 
         } catch (error) {
 
-            setMessage(
+            showMessage(
                 error.response?.data?.detail ||
-                "Operation failed."
+                "Operation failed.",
+                true
             );
-
-            setIsError(true);
         }
     };
 
@@ -143,155 +149,161 @@ function Projects() {
     }
 
     return (
-        <div style={{ padding: "40px" }}>
+        <>
+            <Navbar />
 
-            <h1>Project Management</h1>
+            <div style={{ padding: "40px" }}>
 
-            <h2>
-                {isEditing ? "Update Project" : "Create New Project"}
-            </h2>
+                <h1>Project Management</h1>
 
-            <form onSubmit={handleSubmit}>
+                <h2>
+                    {isEditing ? "Update Project" : "Create New Project"}
+                </h2>
 
-                <div style={{ marginBottom: "15px" }}>
-                    <label>Project Name</label>
-                    <br />
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                <form onSubmit={handleSubmit}>
 
-                <div style={{ marginBottom: "15px" }}>
-                    <label>Description</label>
-                    <br />
-                    <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                    />
-                </div>
+                    <div style={{ marginBottom: "15px" }}>
+                        <label>Project Name</label>
+                        <br />
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
-                <div style={{ marginBottom: "15px" }}>
-                    <label>Location</label>
-                    <br />
-                    <input
-                        type="text"
-                        name="location"
-                        value={formData.location}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                    <div style={{ marginBottom: "15px" }}>
+                        <label>Description</label>
+                        <br />
+                        <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                        />
+                    </div>
 
-                <div style={{ marginBottom: "20px" }}>
-                    <label>Energy Type</label>
-                    <br />
-                    <select
-                        name="energy_type"
-                        value={formData.energy_type}
-                        onChange={handleChange}
-                    >
-                        <option value="Solar">Solar</option>
-                        <option value="Wind">Wind</option>
-                    </select>
-                </div>
+                    <div style={{ marginBottom: "15px" }}>
+                        <label>Location</label>
+                        <br />
+                        <input
+                            type="text"
+                            name="location"
+                            value={formData.location}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
-                <button type="submit">
-                    {isEditing ? "Update Project" : "Create Project"}
-                </button>
+                    <div style={{ marginBottom: "20px" }}>
+                        <label>Energy Type</label>
+                        <br />
+                        <select
+                            name="energy_type"
+                            value={formData.energy_type}
+                            onChange={handleChange}
+                        >
+                            <option value="Solar">Solar</option>
+                            <option value="Wind">Wind</option>
+                        </select>
+                    </div>
 
-                {isEditing && (
-                    <button
-                        type="button"
-                        onClick={cancelEdit}
-                        style={{ marginLeft: "10px" }}
-                    >
-                        Cancel
+                    <button type="submit">
+                        {isEditing ? "Update Project" : "Create Project"}
                     </button>
+
+                    {isEditing && (
+                        <button
+                            type="button"
+                            onClick={cancelEdit}
+                            style={{ marginLeft: "10px" }}
+                        >
+                            Cancel
+                        </button>
+                    )}
+
+                </form>
+
+                {message && (
+                    <p
+                        style={{
+                            color: isError ? "red" : "green",
+                            marginTop: "20px",
+                            fontWeight: "bold"
+                        }}
+                    >
+                        {message}
+                    </p>
                 )}
 
-            </form>
+                <hr style={{ margin: "40px 0" }} />
 
-            {message && (
-                <p
-                    style={{
-                        color: isError ? "red" : "green",
-                        marginTop: "20px",
-                        fontWeight: "bold"
-                    }}
-                >
-                    {message}
-                </p>
-            )}
+                <h2>Existing Projects</h2>
 
-            <hr style={{ margin: "40px 0" }} />
-
-            <h2>Existing Projects</h2>
-
-            {projects.length === 0 ? (
-                <p>No projects found.</p>
-            ) : (
-                <table
-                    border="1"
-                    cellPadding="10"
-                    style={{
-                        width: "100%",
-                        borderCollapse: "collapse"
-                    }}
-                >
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Location</th>
-                            <th>Energy Type</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {projects.map((project) => (
-                            <tr key={project.id}>
-                                <td>{project.id}</td>
-                                <td>{project.name}</td>
-                                <td>{project.description}</td>
-                                <td>{project.location}</td>
-                                <td>{project.energy_type}</td>
-                                <td>{project.status}</td>
-                                <td>
-
-                                    <button
-                                        onClick={() => handleEdit(project)}
-                                    >
-                                        Edit
-                                    </button>
-
-                                    {" "}
-
-                                    <button
-                                        onClick={() => handleDelete(project.id)}
-                                        style={{
-                                            backgroundColor: "red",
-                                            color: "white"
-                                        }}
-                                    >
-                                        Delete
-                                    </button>
-
-                                </td>
+                {projects.length === 0 ? (
+                    <p>No projects found.</p>
+                ) : (
+                    <table
+                        border="1"
+                        cellPadding="10"
+                        style={{
+                            width: "100%",
+                            borderCollapse: "collapse"
+                        }}
+                    >
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Location</th>
+                                <th>Energy Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+                        </thead>
 
-        </div>
+                        <tbody>
+                            {projects.map((project) => (
+                                <tr key={project.id}>
+                                    <td>{project.id}</td>
+                                    <td>{project.name}</td>
+                                    <td>{project.description}</td>
+                                    <td>{project.location}</td>
+                                    <td>{project.energy_type}</td>
+                                    <td>{project.status}</td>
+
+                                    <td>
+
+                                        <button
+                                            onClick={() => handleEdit(project)}
+                                        >
+                                            Edit
+                                        </button>
+
+                                        {" "}
+
+                                        <button
+                                            onClick={() => handleDelete(project.id)}
+                                            style={{
+                                                backgroundColor: "red",
+                                                color: "white"
+                                            }}
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+
+            </div>
+        </>
     );
 }
 

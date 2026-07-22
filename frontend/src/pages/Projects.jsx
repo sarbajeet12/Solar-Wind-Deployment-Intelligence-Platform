@@ -10,7 +10,8 @@ function Projects() {
         name: "",
         description: "",
         location: "",
-        energy_type: "Solar"
+        energy_type: "Solar",
+        status: "Planning"
     });
 
     const [editingId, setEditingId] = useState(null);
@@ -58,7 +59,8 @@ function Projects() {
             name: project.name,
             description: project.description,
             location: project.location,
-            energy_type: project.energy_type
+            energy_type: project.energy_type,
+            status: project.status
         });
 
         showMessage("Editing project...");
@@ -93,16 +95,18 @@ function Projects() {
 
             if (isEditing) {
 
-                await api.put(`/projects/${editingId}`, {
-                    ...formData,
-                    status: "Planning"
-                });
+                await api.put(`/projects/${editingId}`, formData);
 
                 showMessage("Project updated successfully.");
 
             } else {
 
-                await api.post("/projects/", formData);
+                await api.post("/projects/", {
+                    name: formData.name,
+                    description: formData.description,
+                    location: formData.location,
+                    energy_type: formData.energy_type,
+                });
 
                 showMessage("Project created successfully.");
             }
@@ -111,7 +115,8 @@ function Projects() {
                 name: "",
                 description: "",
                 location: "",
-                energy_type: "Solar"
+                energy_type: "Solar",
+                status: "Planning"
             });
 
             setEditingId(null);
@@ -137,7 +142,8 @@ function Projects() {
             name: "",
             description: "",
             location: "",
-            energy_type: "Solar"
+            energy_type: "Solar",
+            status: "Planning"
         });
 
         setMessage("");
@@ -206,6 +212,20 @@ function Projects() {
                         >
                             <option value="Solar">Solar</option>
                             <option value="Wind">Wind</option>
+                        </select>
+                    </div>
+
+                    <div style={{ marginBottom: "20px" }}>
+                        <label>Status</label>
+                        <br />
+                        <select
+                            name="status"
+                            value={formData.status}
+                            onChange={handleChange}
+                        >
+                            <option value="Planning">Planning</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
                         </select>
                     </div>
 

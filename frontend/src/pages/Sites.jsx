@@ -14,7 +14,8 @@ function Sites() {
         state: "",
         district: "",
         energy_type: "Solar",
-        project_id: ""
+        project_id: "",
+        status: "Pending"
     });
 
     const [editingId, setEditingId] = useState(null);
@@ -65,7 +66,8 @@ function Sites() {
         state: site.state,
         district: site.district,
         energy_type: site.energy_type,
-        project_id: String(site.project_id)
+        project_id: String(site.project_id),
+        status: site.status
     });
 
     setMessage("Editing site...");
@@ -107,8 +109,7 @@ const handleSubmit = async (e) => {
                 ...formData,
                 latitude: parseFloat(formData.latitude),
                 longitude: parseFloat(formData.longitude),
-                project_id: parseInt(formData.project_id),
-                status: "Pending"
+                project_id: parseInt(formData.project_id)
             });
 
             setMessage("Site updated successfully.");
@@ -116,9 +117,12 @@ const handleSubmit = async (e) => {
         } else {
 
             await api.post("/sites/", {
-                ...formData,
+                site_name: formData.site_name,
                 latitude: parseFloat(formData.latitude),
                 longitude: parseFloat(formData.longitude),
+                state: formData.state,
+                district: formData.district,
+                energy_type: formData.energy_type,
                 project_id: parseInt(formData.project_id)
             });
 
@@ -132,7 +136,8 @@ const handleSubmit = async (e) => {
             state: "",
             district: "",
             energy_type: "Solar",
-            project_id: ""
+            project_id: "",
+            status: "Pending"
         });
 
         setEditingId(null);
@@ -276,6 +281,23 @@ const handleSubmit = async (e) => {
 
                 <br />
 
+                <div>
+                    <label>Status</label><br />
+
+                    <select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                    >
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+
+                </div>
+
+                <br />
+
                 <button type="submit">
                     {isEditing ? "Update Site" : "Create Site"}
                 </button>
@@ -294,7 +316,8 @@ const handleSubmit = async (e) => {
                                 state: "",
                                 district: "",
                                 energy_type: "Solar",
-                                project_id: ""
+                                project_id: "",
+                                status: "Pending"
                             });
 
                             setMessage("");

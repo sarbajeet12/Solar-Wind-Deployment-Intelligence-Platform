@@ -3,6 +3,7 @@ import {
     LayoutDashboard,
     FolderKanban,
     MapPinned,
+    Search,
     User,
     KeyRound,
     LogOut,
@@ -79,6 +80,17 @@ function Navbar() {
                     >
                         <MapPinned size={18} />
                         Sites
+                    </Link>
+                    <Link
+                        to="/analysis"
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 ${
+                            location.pathname === "/analysis"
+                                ? "bg-blue-600 text-white shadow-lg"
+                                : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                        }`}
+                    >
+                        <Search size={18} />
+                        Analysis
                     </Link>
 
                     <Link

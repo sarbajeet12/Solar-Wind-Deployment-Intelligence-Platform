@@ -12,6 +12,7 @@ import Projects from "../pages/Projects";
 import Sites from "../pages/Sites";
 import Profile from "../pages/Profile";
 import ChangePassword from "../pages/ChangePassword";
+import Analysis from "../pages/Analysis";
 
 function ProtectedRoute({ children }) {
     const token = localStorage.getItem("access_token");
@@ -74,6 +75,14 @@ function AppRoutes() {
                     element={
                         <ProtectedRoute>
                             <Sites />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/analysis"
+                    element={
+                        <ProtectedRoute>
+                            <Analysis />
                         </ProtectedRoute>
                     }
                 />

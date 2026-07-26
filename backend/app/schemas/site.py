@@ -19,6 +19,7 @@ class SiteUpdate(BaseModel):
     state: str
     district: str
     energy_type: str
+    project_id: int
     status: str
 
 

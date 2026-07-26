@@ -56,11 +56,17 @@ def get_current_user(
     )
 
     try:
+        print("\n========== AUTH DEBUG ==========")
+        print("Incoming Token:", token)
+
         payload = jwt.decode(
             token,
             SECRET_KEY,
             algorithms=[ALGORITHM]
         )
+
+        print("Payload:", payload)
+        print("===============================\n")
 
         email: str = payload.get("sub")
 
@@ -75,6 +81,7 @@ def get_current_user(
     if user is None:
         raise credentials_exception
 
+    print("User Found:", user.email)
     return user
 
 def admin_required(

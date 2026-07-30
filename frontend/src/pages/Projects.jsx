@@ -1,6 +1,20 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
+import StatCard from "../components/ui/StatCard";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import PageHeader from "../components/ui/PageHeader";
+
+import {
+    FolderKanban,
+    Sun,
+    Wind,
+    BadgeCheck,
+    Plus
+} from "lucide-react";
+
+import { motion } from "framer-motion";
 
 function Projects() {
     const [projects, setProjects] = useState([]);
@@ -149,6 +163,22 @@ function Projects() {
         setMessage("");
         setIsError(false);
     };
+    const totalProjects = projects.length;
+
+    const solarProjects =
+        projects.filter(
+            p => p.energy_type === "Solar"
+        ).length;
+
+    const windProjects =
+        projects.filter(
+            p => p.energy_type === "Wind"
+        ).length;
+
+    const completedProjects =
+        projects.filter(
+            p => p.status === "Completed"
+        ).length;
 
     if (loading) {
         return <h2>Loading Projects...</h2>;
@@ -158,70 +188,129 @@ function Projects() {
         <>
             <Navbar />
 
-            <div style={{ padding: "40px" }}>
+            <div className="min-h-screen bg-slate-950 text-white px-8 py-8">
 
-                <h1>Project Management</h1>
+                <PageHeader
+    badge="Projects"
+    title="Renewable Energy Projects"
+    subtitle="Create, organize and manage renewable energy deployment projects from one centralized workspace."
+>
+    <Button>
+        <Plus size={18} />
+        New Project
+    </Button>
+</PageHeader>
 
-                <h2>
-                    {isEditing ? "Update Project" : "Create New Project"}
-                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
 
-                <form onSubmit={handleSubmit}>
+                    <StatCard
+                        title="Projects"
+                        value={totalProjects}
+                        icon={FolderKanban}
+                        color="from-blue-500 to-cyan-500"
+                    />
 
-                    <div style={{ marginBottom: "15px" }}>
-                        <label>Project Name</label>
-                        <br />
+                    <StatCard
+                        title="Solar"
+                        value={solarProjects}
+                        icon={Sun}
+                        color="from-yellow-400 to-orange-500"
+                    />
+
+                    <StatCard
+                        title="Wind"
+                        value={windProjects}
+                        icon={Wind}
+                        color="from-cyan-400 to-sky-500"
+                    />
+
+                    <StatCard
+                        title="Completed"
+                        value={completedProjects}
+                        icon={BadgeCheck}
+                        color="from-green-400 to-emerald-500"
+                    />
+
+                </div>
+
+                <Card className="mb-10">
+
+                    <h2 className="text-2xl font-bold text-white mb-6">
+                        {isEditing ? "Update Project" : "Create New Project"}
+                    </h2>
+
+                    <form onSubmit={handleSubmit}>
+
+                    <div className="mb-5">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Project Name
+                        </label>
+
                         <input
                             type="text"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
                             required
+                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none transition"
                         />
                     </div>
 
-                    <div style={{ marginBottom: "15px" }}>
-                        <label>Description</label>
-                        <br />
+                    <div className="mb-5">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Description
+                        </label>
+
                         <textarea
+                            rows={4}
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
+                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white focus:border-cyan-500 focus:outline-none transition"
                         />
                     </div>
 
-                    <div style={{ marginBottom: "15px" }}>
-                        <label>Location</label>
-                        <br />
+                   <div className="mb-5">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Location
+                        </label>
+
                         <input
                             type="text"
                             name="location"
                             value={formData.location}
                             onChange={handleChange}
                             required
+                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none transition"
                         />
                     </div>
 
-                    <div style={{ marginBottom: "20px" }}>
-                        <label>Energy Type</label>
-                        <br />
+                    <div className="mb-5">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Energy Type
+                        </label>
+
                         <select
                             name="energy_type"
                             value={formData.energy_type}
                             onChange={handleChange}
+                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white focus:border-cyan-500 focus:outline-none transition"
                         >
                             <option value="Solar">Solar</option>
                             <option value="Wind">Wind</option>
                         </select>
                     </div>
 
-                    <div style={{ marginBottom: "20px" }}>
-                        <label>Status</label>
-                        <br />
+                    <div className="mb-5">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Status
+                        </label>
+
                         <select
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
+                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white focus:border-cyan-500 focus:outline-none transition"
                         >
                             <option value="Planning">Planning</option>
                             <option value="In Progress">In Progress</option>
@@ -229,21 +318,24 @@ function Projects() {
                         </select>
                     </div>
 
-                    <button type="submit">
+                    <Button type="submit">
                         {isEditing ? "Update Project" : "Create Project"}
-                    </button>
+                    </Button>
 
                     {isEditing && (
-                        <button
+                        <Button
                             type="button"
+                            variant="secondary"
                             onClick={cancelEdit}
-                            style={{ marginLeft: "10px" }}
+                            className="ml-3"
                         >
                             Cancel
-                        </button>
+                        </Button>
                     )}
 
                 </form>
+            </Card>
+
 
                 {message && (
                     <p

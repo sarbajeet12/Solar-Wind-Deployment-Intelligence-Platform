@@ -1,4 +1,4 @@
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
 import { useState } from "react";
 import api from "../services/api";
 

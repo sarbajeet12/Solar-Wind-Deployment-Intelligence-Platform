@@ -14,6 +14,8 @@ import Profile from "../pages/Profile";
 import ChangePassword from "../pages/ChangePassword";
 import Analysis from "../pages/Analysis";
 
+import AppLayout from "../layouts/AppLayout";
+
 function ProtectedRoute({ children }) {
     const token = localStorage.getItem("access_token");
 
@@ -45,22 +47,26 @@ function AppRoutes() {
 
                 <Route
                     path="/register"
-                   element={
+                    element={
                         localStorage.getItem("access_token")
                             ? <Navigate to="/dashboard" replace />
                             : <Register />
                     }
                 />
 
+                {/* Dashboard */}
                 <Route
                     path="/dashboard"
                     element={
                         <ProtectedRoute>
-                            <Dashboard />
+                            <AppLayout>
+                                <Dashboard />
+                            </AppLayout>
                         </ProtectedRoute>
                     }
                 />
 
+                {/* Projects */}
                 <Route
                     path="/projects"
                     element={
@@ -70,6 +76,7 @@ function AppRoutes() {
                     }
                 />
 
+                {/* Sites */}
                 <Route
                     path="/sites"
                     element={
@@ -78,6 +85,8 @@ function AppRoutes() {
                         </ProtectedRoute>
                     }
                 />
+
+                {/* Analysis */}
                 <Route
                     path="/analysis"
                     element={
@@ -87,6 +96,7 @@ function AppRoutes() {
                     }
                 />
 
+                {/* Profile */}
                 <Route
                     path="/profile"
                     element={
@@ -96,6 +106,7 @@ function AppRoutes() {
                     }
                 />
 
+                {/* Change Password */}
                 <Route
                     path="/change-password"
                     element={

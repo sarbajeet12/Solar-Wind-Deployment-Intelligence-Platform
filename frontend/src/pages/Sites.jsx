@@ -1,6 +1,21 @@
+import Card from "../components/ui/Card";
+import Input from "../components/ui/Input";
 import Navbar from "../components/layout/Navbar";
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import StatCard from "../components/ui/StatCard";
+import Button from "../components/ui/Button";
+import PageHeader from "../components/ui/PageHeader";
+
+import {
+    MapPinned,
+    Sun,
+    Wind,
+    CheckCircle,
+    Plus
+} from "lucide-react";
+
+import { motion } from "framer-motion";
 
 function Sites() {
     const [sites, setSites] = useState([]);
@@ -160,274 +175,370 @@ const handleSubmit = async (e) => {
     if (loading) {
         return <h2>Loading...</h2>;
     }
+const solarCount = sites.filter(
+    (site) => site.energy_type === "Solar"
+).length;
 
-    return (
-        <>
-            <Navbar />
+const windCount = sites.filter(
+    (site) => site.energy_type === "Wind"
+).length;
 
-        <div style={{ padding: "40px" }}>
+const completedCount = sites.filter(
+    (site) => site.status === "Completed"
+).length;
 
-            <h1>Site Management</h1>
+   return (
+<>
+    <Navbar />
 
-            <h2>
-                {isEditing ? "Update Site" : "Create Site"}
-            </h2>
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen bg-[#050816] p-6"
+    >
 
-            <form onSubmit={handleSubmit}>
+        <PageHeader
+            title="Renewable Energy Sites"
+            subtitle="Manage solar and wind deployment sites with geolocation and project mapping."
+            badge="SITES"
+            action={
+                <Button icon={Plus}>
+                    New Site
+                </Button>
+            }
+        />
 
-                <div>
-                    <label>Site Name</label><br />
-                    <input
-                        name="site_name"
-                        value={formData.site_name}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
 
-                <br />
+            <StatCard
+                title="Sites"
+                value={sites.length}
+                icon={MapPinned}
+                color="from-cyan-500 to-blue-500"
+            />
 
-                <div>
-                    <label>Latitude</label><br />
-                    <input
-                        name="latitude"
-                        type="number"
-                        step="any"
-                        value={formData.latitude}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+            <StatCard
+                title="Solar"
+                value={solarCount}
+                icon={Sun}
+                color="from-yellow-500 to-orange-500"
+            />
 
-                <br />
+            <StatCard
+                title="Wind"
+                value={windCount}
+                icon={Wind}
+                color="from-sky-500 to-cyan-400"
+            />
 
-                <div>
-                    <label>Longitude</label><br />
-                    <input
-                        name="longitude"
-                        type="number"
-                        step="any"
-                        value={formData.longitude}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+            <StatCard
+                title="Completed"
+                value={completedCount}
+                icon={CheckCircle}
+                color="from-green-500 to-emerald-400"
+            />
 
-                <br />
+        </div>
 
-                <div>
-                    <label>State</label><br />
-                    <input
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+        <div className="mt-8">
 
-                <br />
 
-                <div>
-                    <label>District</label><br />
-                    <input
-                        name="district"
-                        value={formData.district}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+            <Card className="mt-8" hover={false}>
 
-                <br />
+    <h2 className="text-2xl font-bold text-white mb-8">
+        {isEditing ? "Update Site" : "Create New Site"}
+    </h2>
 
-                <div>
-                    <label>Energy Type</label><br />
-                    <select
-                        name="energy_type"
-                        value={formData.energy_type}
-                        onChange={handleChange}
+    <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+    >
+
+        <Input
+            label="Site Name"
+            name="site_name"
+            value={formData.site_name}
+            onChange={handleChange}
+            placeholder="Enter Site Name"
+            required
+        />
+
+        <Input
+            label="State"
+            name="state"
+            value={formData.state}
+            onChange={handleChange}
+            placeholder="Odisha"
+            required
+        />
+
+        <Input
+            label="Latitude"
+            name="latitude"
+            type="number"
+            step="any"
+            value={formData.latitude}
+            onChange={handleChange}
+            placeholder="20.2961"
+            required
+        />
+
+        <Input
+            label="Longitude"
+            name="longitude"
+            type="number"
+            step="any"
+            value={formData.longitude}
+            onChange={handleChange}
+            placeholder="85.8245"
+            required
+        />
+
+        <Input
+            label="District"
+            name="district"
+            value={formData.district}
+            onChange={handleChange}
+            placeholder="Khordha"
+            required
+        />
+
+        <div>
+
+            <label className="block mb-2 text-sm font-medium text-slate-300">
+                Energy Type
+            </label>
+
+            <select
+                name="energy_type"
+                value={formData.energy_type}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
+            >
+                <option value="Solar">Solar</option>
+                <option value="Wind">Wind</option>
+            </select>
+
+        </div>
+
+        <div>
+
+            <label className="block mb-2 text-sm font-medium text-slate-300">
+                Project
+            </label>
+
+            <select
+                name="project_id"
+                value={formData.project_id}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
+                required
+            >
+
+                <option value="">Select Project</option>
+
+                {projects.map((project) => (
+                    <option
+                        key={project.id}
+                        value={project.id}
                     >
-                        <option value="Solar">Solar</option>
-                        <option value="Wind">Wind</option>
-                    </select>
-                </div>
+                        {project.name}
+                    </option>
+                ))}
 
-                <br />
+            </select>
 
-                <div>
-                    <label>Project</label><br />
+        </div>
 
-                    <select
-                        name="project_id"
-                        value={formData.project_id}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="">
-                            Select Project
-                        </option>
+        <div>
 
-                        {projects.map((project) => (
-                            <option
-                                key={project.id}
-                                value={project.id}
-                            >
-                                {project.name}
-                            </option>
-                        ))}
+            <label className="block mb-2 text-sm font-medium text-slate-300">
+                Status
+            </label>
 
-                    </select>
+            <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
+            >
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
 
-                </div>
+        </div>
 
-                <br />
+        <div className="md:col-span-2 flex gap-4 mt-4">
 
-                <div>
-                    <label>Status</label><br />
+            <Button type="submit">
 
-                    <select
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                    >
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                    </select>
+                {isEditing
+                    ? "Update Site"
+                    : "Create Site"}
 
-                </div>
+            </Button>
 
-                <br />
+            {isEditing && (
 
-                <button type="submit">
-                    {isEditing ? "Update Site" : "Create Site"}
-                </button>
+                <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
 
-                {isEditing && (
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsEditing(false);
-                            setEditingId(null);
+                        setIsEditing(false);
+                        setEditingId(null);
 
-                            setFormData({
-                                site_name: "",
-                                latitude: "",
-                                longitude: "",
-                                state: "",
-                                district: "",
-                                energy_type: "Solar",
-                                project_id: "",
-                                status: "Pending"
-                            });
+                        setFormData({
+                            site_name: "",
+                            latitude: "",
+                            longitude: "",
+                            state: "",
+                            district: "",
+                            energy_type: "Solar",
+                            project_id: "",
+                            status: "Pending",
+                        });
 
-                            setMessage("");
-                        }}
-                        style={{ marginLeft: "10px" }}
-                    >
-                        Cancel
-                    </button>
-                )}
+                        setMessage("");
 
-            </form>
-
-            {message && (
-                <p
-                    style={{
-                        color:
-                            message.includes("failed") ||
-                            message.includes("Unable")
-                                ? "red"
-                                : "green",
-                        marginTop: "20px",
-                        fontWeight: "bold"
-                    }}  
-                >
-                    {message}
-                </p>
-            )}
-
-            <hr />
-
-            <h2>Existing Sites</h2>
-
-            {sites.length === 0 ? (
-                <p>No sites found.</p>
-            ) : (
-
-                <table
-                    border="1"
-                    cellPadding="10"
-                    style={{
-                        borderCollapse: "collapse",
-                        width: "100%"
                     }}
                 >
-
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Site Name</th>
-                            <th>Latitude</th>
-                            <th>Longitude</th>
-                            <th>State</th>
-                            <th>District</th>
-                            <th>Energy</th>
-                            <th>Status</th>
-                            <th>Project ID</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {sites.map((site) => (
-
-                           <tr key={site.id}>
-                                <td>{site.id}</td>
-                                <td>{site.site_name}</td>
-                                <td>{site.latitude}</td>
-                                <td>{site.longitude}</td>
-                                <td>{site.state}</td>
-                                <td>{site.district}</td>
-                                <td>{site.energy_type}</td>
-                                <td>{site.status}</td>
-                                <td>{site.project_id}</td>
-
-                                <td>
-
-                                    <button
-                                        onClick={() => handleEdit(site)}
-                                    >
-                                        Edit
-                                    </button>
-
-                                    {" "}
-
-                                    <button
-                                        onClick={() => handleDelete(site.id)}
-                                        style={{
-                                            backgroundColor: "red",
-                                            color: "white"
-                                        }}
-                                    >
-                                        Delete
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        ))}
-
-                    </tbody>
-
-                </table>
+                    Cancel
+                </Button>
 
             )}
 
         </div>
-        </>
-    );
+
+    </form>
+
+</Card>
+
+{message && (
+    <p
+        style={{
+            color:
+                message.includes("failed") ||
+                message.includes("Unable")
+                    ? "red"
+                    : "green",
+            marginTop: "20px",
+            fontWeight: "bold",
+        }}
+    >
+        {message}
+    </p>
+)}
+
+<hr />
+<Card className="mt-8">
+
+    <h2 className="text-2xl font-bold text-white mb-6">
+        Existing Sites
+    </h2>
+
+    <div className="overflow-x-auto">
+
+        <table className="w-full text-sm">
+
+            <thead>
+
+                <tr className="border-b border-slate-700 text-slate-400">
+
+                    <th className="text-left py-3 px-3">Site</th>
+                    <th className="text-left py-3 px-3">Project</th>
+                    <th className="text-left py-3 px-3">Energy</th>
+                    <th className="text-left py-3 px-3">State</th>
+                    <th className="text-left py-3 px-3">District</th>
+                    <th className="text-left py-3 px-3">Status</th>
+                    <th className="text-center py-3 px-3">Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {sites.map((site) => (
+
+                    <tr
+                        key={site.id}
+                        className="border-b border-slate-800 hover:bg-slate-800/50 transition"
+                    >
+
+                        <td className="py-4 px-3 font-medium text-white">
+                            {site.site_name}
+                        </td>
+
+                        <td className="py-4 px-3 text-slate-300">
+                            {site.project_id}
+                        </td>
+
+                        <td className="py-4 px-3 text-slate-300">
+                            {site.energy_type}
+                        </td>
+
+                        <td className="py-4 px-3 text-slate-300">
+                            {site.state}
+                        </td>
+
+                        <td className="py-4 px-3 text-slate-300">
+                            {site.district}
+                        </td>
+
+                        <td className="py-4 px-3">
+
+                            <span
+                                className={`px-3 py-1 rounded-full text-xs font-semibold
+                                ${
+                                    site.status === "Completed"
+                                        ? "bg-green-500/20 text-green-400"
+                                        : site.status === "In Progress"
+                                        ? "bg-yellow-500/20 text-yellow-400"
+                                        : "bg-blue-500/20 text-blue-400"
+                                }`}
+                            >
+                                {site.status}
+                            </span>
+
+                        </td>
+
+                        <td className="py-4 px-3 flex justify-center gap-3">
+
+                            <Button
+                                variant="secondary"
+                                onClick={() => handleEdit(site)}
+                            >
+                                Edit
+                            </Button>
+
+                            <Button
+                                variant="danger"
+                                onClick={() => handleDelete(site.id)}
+                            >
+                                Delete
+                            </Button>
+
+                        </td>
+
+                    </tr>
+
+                ))}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</Card>
+</div>
+</motion.div>
+
+</>
+);
 }
 
 export default Sites;

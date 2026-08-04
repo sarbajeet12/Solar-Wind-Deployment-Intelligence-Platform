@@ -1,7 +1,27 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+
+import {
+    MapPinned,
+    Sun,
+    Wind,
+    Mountain,
+    BadgeCheck,
+    ArrowLeft,
+    RotateCcw,
+    Search,
+} from "lucide-react";
+
+import Navbar from "../components/layout/Navbar";
+import SiteMap from "../components/map/SiteMap";
 import api from "../services/api";
 
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+
 export default function Analysis() {
+
     const [sites, setSites] = useState([]);
     const [selectedSite, setSelectedSite] = useState("");
     const [report, setReport] = useState(null);
@@ -21,6 +41,7 @@ export default function Analysis() {
     };
 
     const analyzeSite = async () => {
+
         if (!selectedSite) return;
 
         const site = sites.find(
@@ -30,70 +51,153 @@ export default function Analysis() {
         setLoading(true);
 
         try {
-            const res = await api.post("/analysis/report", {
-                latitude: site.latitude,
-                longitude: site.longitude,
-            });
+
+            const res = await api.post(
+                "/analysis/report",
+                {
+                    latitude: site.latitude,
+                    longitude: site.longitude,
+                }
+            );
 
             setReport(res.data);
+
         } catch (err) {
+
             console.error(err);
             alert("Analysis failed.");
+
         }
 
         setLoading(false);
+
+    };
+
+    const resetAnalysis = () => {
+        setReport(null);
+        setSelectedSite("");
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white p-8">
-            <div className="max-w-7xl mx-auto">
+        <>
+            <Navbar />
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+            <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="min-h-screen bg-[#050816] p-6"
+            >
 
-                    <h1 className="text-4xl font-bold mb-2">
-                        Environmental Analysis
-                    </h1>
+                <PageHeader
+                    title="Environmental Analysis"
+                    subtitle="Analyze renewable energy suitability using environmental intelligence."
+                    badge="ANALYSIS"
+                    action={
+                        report && (
+                            <div className="flex gap-3">
 
-                    <p className="text-slate-400 mb-8">
-                        Analyze environmental suitability for renewable energy deployment.
-                    </p>
-
-                    <div className="flex flex-col md:flex-row gap-4">
-
-                        <select
-                            value={selectedSite}
-                            onChange={(e) => setSelectedSite(e.target.value)}
-                            className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white flex-1"
-                        >
-                            <option value="">Select Site</option>
-
-                            {sites.map((site) => (
-                                <option
-                                    key={site.id}
-                                    value={site.id}
+                                <Button
+                                    variant="secondary"
+                                    onClick={resetAnalysis}
                                 >
-                                    {site.site_name}
+                                    <ArrowLeft size={18} />
+                                    Back
+                                </Button>
+
+                                <Button
+                                    onClick={resetAnalysis}
+                                >
+                                    <RotateCcw size={18} />
+                                    Analyze Another Site
+                                </Button>
+
+                            </div>
+                        )
+                    }
+                />
+
+                {!report && (
+
+                    <Card
+                        className="mt-8"
+                        hover={false}
+                    >
+
+                        <div className="flex items-center gap-3 mb-6">
+
+                            <Search
+                                className="text-cyan-400"
+                                size={28}
+                            />
+
+                            <div>
+
+                                <h2 className="text-2xl font-bold text-white">
+                                    Select Deployment Site
+                                </h2>
+
+                                <p className="text-slate-400">
+                                    Choose a renewable energy site for environmental assessment.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div className="flex flex-col md:flex-row gap-4">
+
+                            <select
+                                value={selectedSite}
+                                onChange={(e) =>
+                                    setSelectedSite(
+                                        e.target.value
+                                    )
+                                }
+                                className="flex-1 rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
+                            >
+
+                                <option value="">
+                                    Select Site
                                 </option>
-                            ))}
-                        </select>
 
-                        <button
-                            onClick={analyzeSite}
-                            disabled={loading}
-                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-xl px-8 py-3 font-semibold transition"
-                        >
-                            {loading ? "Analyzing..." : "Analyze"}
-                        </button>
+                                {sites.map((site) => (
 
-                    </div>
+                                    <option
+                                        key={site.id}
+                                        value={site.id}
+                                    >
+                                        {site.site_name}
+                                    </option>
 
-                    {loading && (
-                        <p className="mt-6 text-cyan-400">
-                            Generating renewable energy assessment...
-                        </p>
-                    )}
+                                ))}
 
-                </div>
+                            </select>
+
+                            <Button
+                                onClick={analyzeSite}
+                                disabled={loading}
+                            >
+
+                                {loading
+                                    ? "Analyzing..."
+                                    : "Analyze"}
+
+                            </Button>
+
+                        </div>
+
+                        {loading && (
+
+                            <p className="mt-6 text-cyan-400">
+                                Generating renewable energy assessment...
+                            </p>
+
+                        )}
+
+                    </Card>
+
+                )}
 
                 {report && (
 
@@ -101,158 +205,218 @@ export default function Analysis() {
 
                         {/* Location */}
 
-                        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                        <Card hover={false}>
 
-                            <h2 className="text-cyan-400 text-xl font-bold mb-4">
-                                📍 Location
-                            </h2>
+                            <div className="flex items-center gap-3 mb-5">
 
-                            <p><strong>Country:</strong> {report.location.country}</p>
-                            <p><strong>State:</strong> {report.location.state}</p>
-                            <p><strong>District:</strong> {report.location.district}</p>
-                            <p><strong>City:</strong> {report.location.city}</p>
+                                <MapPinned
+                                    className="text-cyan-400"
+                                    size={28}
+                                />
 
-                        </div>
+                                <h2 className="text-2xl font-bold text-white">
+                                    Location
+                                </h2>
+
+                            </div>
+
+                            <div className="space-y-3 text-slate-300">
+
+                                <p><strong>Country:</strong> {report.location.country}</p>
+                                <p><strong>State:</strong> {report.location.state}</p>
+                                <p><strong>District:</strong> {report.location.district}</p>
+                                <p><strong>City:</strong> {report.location.city}</p>
+
+                            </div>
+
+                        </Card>
 
                         {/* Solar */}
 
-                        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                        <Card hover={false}>
 
-                            <h2 className="text-yellow-400 text-xl font-bold mb-4">
-                                ☀ Solar Analysis
-                            </h2>
+                            <div className="flex items-center gap-3 mb-5">
 
-                            <p>Average GHI</p>
+                                <Sun
+                                    className="text-yellow-400"
+                                    size={28}
+                                />
 
-                            <h1 className="text-5xl font-bold mt-2">
+                                <h2 className="text-2xl font-bold text-white">
+                                    Solar Analysis
+                                </h2>
+
+                            </div>
+
+                            <h1 className="text-5xl font-bold text-yellow-400">
                                 {report.solar.ghi}
                             </h1>
 
                             <p className="text-slate-400 mt-4">
-                                Temperature: {report.solar.temperature} °C
+                                Temperature : {report.solar.temperature} °C
                             </p>
 
-                            <hr className="border-slate-700 my-4" />
+                            <hr className="border-slate-700 my-5" />
 
-                            <p>
-                                <strong>Solar Score:</strong> {report.solar.score}/100
+                            <p className="text-white">
+                                Solar Score :
+                                <span className="text-yellow-400 font-bold ml-2">
+                                    {report.solar.score}/100
+                                </span>
                             </p>
 
-                            <p className="mt-2">
-                                <strong>Category:</strong>{" "}
-                                <span className="text-yellow-400">
+                            <p className="mt-3 text-slate-300">
+                                Category :
+                                <span className="text-yellow-400 font-semibold ml-2">
                                     {report.solar.category}
                                 </span>
                             </p>
 
-                        </div>
+                        </Card>
 
                         {/* Wind */}
 
-                        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                        <Card hover={false}>
 
-                            <h2 className="text-blue-400 text-xl font-bold mb-4">
-                                🌬 Wind Analysis
-                            </h2>
+                            <div className="flex items-center gap-3 mb-5">
 
-                            <p>Wind Speed</p>
+                                <Wind
+                                    className="text-blue-400"
+                                    size={28}
+                                />
 
-                            <h1 className="text-5xl font-bold mt-2">
+                                <h2 className="text-2xl font-bold text-white">
+                                    Wind Analysis
+                                </h2>
+
+                            </div>
+
+                            <h1 className="text-5xl font-bold text-blue-400">
                                 {report.wind.speed}
                             </h1>
 
                             <p className="text-slate-400 mt-4">
-                                Power Density: {report.wind.power_density} W/m²
+                                Power Density :
+                                {" "}
+                                {report.wind.power_density} W/m²
                             </p>
 
-                            <hr className="border-slate-700 my-4" />
+                            <hr className="border-slate-700 my-5" />
 
-                            <p>
-                                <strong>Wind Score:</strong> {report.wind.score}/100
+                            <p className="text-white">
+                                Wind Score :
+                                <span className="text-blue-400 font-bold ml-2">
+                                    {report.wind.score}/100
+                                </span>
                             </p>
 
-                            <p className="mt-2">
-                                <strong>Category:</strong>{" "}
-                                <span className="text-blue-400">
+                            <p className="mt-3 text-slate-300">
+                                Category :
+                                <span className="text-blue-400 font-semibold ml-2">
                                     {report.wind.category}
                                 </span>
                             </p>
 
-                        </div>
+                        </Card>
 
                         {/* Terrain */}
 
-                        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                        <Card hover={false}>
 
-                            <h2 className="text-green-400 text-xl font-bold mb-4">
-                                ⛰ Terrain
-                            </h2>
+                            <div className="flex items-center gap-3 mb-5">
 
-                            <h1 className="text-5xl font-bold">
+                                <Mountain
+                                    className="text-green-400"
+                                    size={28}
+                                />
+
+                                <h2 className="text-2xl font-bold text-white">
+                                    Terrain
+                                </h2>
+
+                            </div>
+
+                            <h1 className="text-5xl font-bold text-green-400">
                                 {report.terrain.elevation} m
                             </h1>
 
-                            <p className="text-slate-400 mt-4">
-                                Source: {report.terrain.source}
+                            <p className="text-slate-400 mt-5">
+                                Source : {report.terrain.source}
                             </p>
+
+                        </Card>
+
+                      {/* Resource Assessment */}
+
+                    <Card
+                        hover={false}
+                        className="lg:col-span-2"
+                    >
+
+                        <div className="flex items-center gap-3 mb-6">
+
+                            <BadgeCheck
+                                className="text-purple-400"
+                                size={28}
+                            />
+
+                            <h2 className="text-2xl font-bold text-white">
+                                Resource Assessment
+                            </h2>
 
                         </div>
 
-                        {/* Resource Assessment */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                        <div className="lg:col-span-2 bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                            <div className="rounded-xl bg-slate-800 p-6 text-center">
 
-                            <h2 className="text-purple-400 text-2xl font-bold mb-6">
-                                ⭐ Resource Assessment Report
-                            </h2>
+                                <p className="text-slate-400">
+                                    Overall Score
+                                </p>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <h1 className="text-6xl font-bold text-purple-400 mt-3">
+                                    {report.overall_score}
+                                </h1>
 
-                                <div className="bg-slate-800 rounded-xl p-5 text-center">
-                                    <p className="text-slate-400">
-                                        Overall Score
-                                    </p>
+                                <p className="text-slate-500 mt-2">
+                                    out of 100
+                                </p>
 
-                                    <h1 className="text-5xl font-bold text-purple-400 mt-3">
-                                        {report.overall_score}
-                                    </h1>
+                            </div>
 
-                                    <p className="mt-2 text-slate-400">
-                                        out of 100
-                                    </p>
-                                </div>
+                            <div className="md:col-span-2 rounded-xl bg-slate-800 p-6">
 
-                                <div className="md:col-span-2 bg-slate-800 rounded-xl p-5">
+                                <h3 className="text-xl font-semibold text-white">
+                                    Recommendation
+                                </h3>
 
-                                    <h3 className="text-lg font-semibold mb-3">
-                                        Recommendation
-                                    </h3>
+                                <p className="text-green-400 text-xl mt-4 font-semibold">
+                                    {report.recommendation}
+                                </p>
 
-                                    <p className="text-green-400 text-lg font-semibold">
-                                        {report.recommendation}
-                                    </p>
+                                <div className="grid grid-cols-2 gap-6 mt-8">
 
-                                    <div className="mt-5 grid grid-cols-2 gap-4">
+                                    <div>
 
-                                        <div>
-                                            <p className="text-slate-400">
-                                                Solar Score
-                                            </p>
+                                        <p className="text-slate-400">
+                                            Solar Score
+                                        </p>
 
-                                            <p className="text-2xl font-bold text-yellow-400">
-                                                {report.solar.score}
-                                            </p>
-                                        </div>
+                                        <h2 className="text-4xl font-bold text-yellow-400 mt-2">
+                                            {report.solar.score}
+                                        </h2>
 
-                                        <div>
-                                            <p className="text-slate-400">
-                                                Wind Score
-                                            </p>
+                                    </div>
 
-                                            <p className="text-2xl font-bold text-blue-400">
-                                                {report.wind.score}
-                                            </p>
-                                        </div>
+                                    <div>
+
+                                        <p className="text-slate-400">
+                                            Wind Score
+                                        </p>
+
+                                        <h2 className="text-4xl font-bold text-blue-400 mt-2">
+                                            {report.wind.score}
+                                        </h2>
 
                                     </div>
 
@@ -262,11 +426,37 @@ export default function Analysis() {
 
                         </div>
 
-                    </div>
+                    </Card>
 
-                )}
 
-            </div>
-        </div>
-    );
+                {/* Interactive Map */}
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="mt-8"
+                >
+
+                    <Card hover={false}>
+
+                        <h2 className="text-2xl font-bold text-white mb-6">
+                            Interactive Deployment Map
+                        </h2>
+
+                        <SiteMap />
+
+                    </Card>
+
+                </motion.div>
+                </div>
+
+            )}
+
+        </motion.div>
+
+    </>
+
+);
+
 }

@@ -35,12 +35,19 @@ function Dashboard() {
         solar: 0,
         wind: 0,
         pending: 0,
-        completed: 0
+        completed: 0,
     });
+
+    const [recentProjects, setRecentProjects] = useState([]);
+    const [recentSites, setRecentSites] = useState([]);
+    const [recentActivity, setRecentActivity] = useState([]);
 
     useEffect(() => {
         fetchUser();
         fetchStats();
+        fetchRecentProjects();
+        fetchRecentSites();
+        fetchRecentActivity();
     }, []);
 
     const fetchUser = async () => {
@@ -61,6 +68,52 @@ function Dashboard() {
             console.log(error);
         }
     };
+
+    const fetchRecentProjects = async () => {
+        try {
+            const response = await api.get("/projects/");
+            setRecentProjects(response.data.slice(0, 5));
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const fetchRecentSites = async () => {
+        try {
+            const response = await api.get("/sites/");
+            setRecentSites(response.data.slice(0, 5));
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    const fetchRecentActivity = async () => {
+    try {
+        const projectsResponse = await api.get("/projects/");
+        const sitesResponse = await api.get("/sites/");
+
+        const activity = [];
+
+        projectsResponse.data.slice(0, 3).forEach((project) => {
+            activity.push({
+                title: `Project "${project.name}" updated`,
+                time: "Recently",
+                color: "bg-blue-500",
+            });
+        });
+
+        sitesResponse.data.slice(0, 3).forEach((site) => {
+            activity.push({
+                title: `Site "${site.site_name}" added`,
+                time: "Recently",
+                color: "bg-green-500",
+            });
+        });
+
+        setRecentActivity(activity);
+    } catch (error) {
+        console.log(error);
+    }
+};
 
     if (!user) {
         return (
@@ -208,13 +261,15 @@ function Dashboard() {
 
                 </div>
 
-                {/* Chart */}
+                {/* Chart + Activity */}
+
+                <div className="grid lg:grid-cols-3 gap-6 mt-12">
 
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="mt-12 bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-xl"
+                    className="lg:col-span-2 bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-xl"
                 >
 
                     <h2 className="text-2xl font-semibold mb-6">
@@ -255,6 +310,216 @@ function Dashboard() {
 
                         </BarChart>
                     </ResponsiveContainer>
+
+                </motion.div>
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-xl"
+                >
+
+                    <h2 className="text-2xl font-semibold mb-6">
+                        Recent Activity
+                    </h2>
+
+                    <div className="space-y-5">
+
+                        {recentActivity.map((activity, index) => (
+
+                            <div
+                                key={index}
+                                className="flex items-start gap-4"
+                            >
+
+                                <div
+                                    className={`w-3 h-3 rounded-full mt-2 ${activity.color}`}
+                                />
+
+                                <div>
+
+                                    <p className="text-white">
+                                        {activity.title}
+                                    </p>
+
+                                    <p className="text-slate-400 text-sm">
+                                        {activity.time}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        ))}
+
+                    </div>
+
+                </motion.div>
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="mt-10"
+                >
+
+                    <h2 className="text-2xl font-semibold mb-6">
+                        Recent Projects
+                    </h2>
+
+                    <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+
+                        <table className="w-full">
+
+                            <thead className="bg-slate-800">
+
+                                <tr>
+
+                                    <th className="text-left px-6 py-4">
+                                        Project
+                                    </th>
+
+                                    <th className="text-left px-6 py-4">
+                                        Type
+                                    </th>
+
+                                    <th className="text-left px-6 py-4">
+                                        Status
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {recentProjects.map((project) => (
+
+                                    <tr
+                                        key={project.id}
+                                        className="border-t border-slate-800 hover:bg-slate-800/40 transition"
+                                    >
+
+                                        <td className="px-6 py-4">
+                                            {project.name}
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            {project.energy_type}
+                                        </td>
+
+                                        <td className="px-6 py-4">
+
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                    project.status === "Completed"
+                                                        ? "bg-green-500/20 text-green-400"
+                                                        : project.status === "In Progress"
+                                                        ? "bg-yellow-500/20 text-yellow-400"
+                                                        : project.status === "Planning"
+                                                        ? "bg-cyan-500/20 text-cyan-400"
+                                                        : project.status === "Pending"
+                                                        ? "bg-orange-500/20 text-orange-400"
+                                                        : "bg-slate-500/20 text-slate-300"
+                                                }`}
+                                            >
+                                                {project.status}
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.65 }}
+                    className="mt-10"
+                >
+
+                    <h2 className="text-2xl font-semibold mb-6">
+                        Recent Sites
+                    </h2>
+
+                    <div className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden">
+
+                        <table className="w-full">
+
+                            <thead className="bg-slate-800">
+
+                                <tr>
+
+                                    <th className="text-left px-6 py-4">
+                                        Site
+                                    </th>
+
+                                    <th className="text-left px-6 py-4">
+                                        Energy
+                                    </th>
+
+                                    <th className="text-left px-6 py-4">
+                                        Status
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {recentSites.map((site) => (
+
+                                    <tr
+                                        key={site.id}
+                                        className="border-t border-slate-800 hover:bg-slate-800/40 transition"
+                                    >
+
+                                        <td className="px-6 py-4">
+                                            {site.site_name}
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            {site.energy_type}
+                                        </td>
+
+                                        <td className="px-6 py-4">
+
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                        site.status === "Completed"
+                                                            ? "bg-green-500/20 text-green-400"
+                                                            : site.status === "In Progress"
+                                                            ? "bg-yellow-500/20 text-yellow-400"
+                                                            : site.status === "Pending"
+                                                            ? "bg-orange-500/20 text-orange-400"
+                                                            : "bg-cyan-500/20 text-cyan-400"
+                                                    }`}
+                                            >
+                                                {site.status}
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </motion.div>
                 {/* Quick Actions */}

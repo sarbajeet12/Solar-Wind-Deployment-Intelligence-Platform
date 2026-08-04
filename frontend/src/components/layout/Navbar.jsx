@@ -5,7 +5,6 @@ import {
     MapPinned,
     Search,
     User,
-    KeyRound,
     LogOut,
     SunMedium
 } from "lucide-react";
@@ -29,7 +28,10 @@ function Navbar() {
                     className="flex items-center gap-3 no-underline"
                 >
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg">
-                        <SunMedium className="text-white" size={24} />
+                        <SunMedium
+                            className="text-white"
+                            size={24}
+                        />
                     </div>
 
                     <div>
@@ -81,6 +83,7 @@ function Navbar() {
                         <MapPinned size={18} />
                         Sites
                     </Link>
+
                     <Link
                         to="/analysis"
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 ${
@@ -103,18 +106,6 @@ function Navbar() {
                     >
                         <User size={18} />
                         Profile
-                    </Link>
-
-                    <Link
-                        to="/change-password"
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 ${
-                            location.pathname === "/change-password"
-                                ? "bg-blue-600 text-white shadow-lg"
-                                : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                        }`}
-                    >
-                        <KeyRound size={18} />
-                        Password
                     </Link>
 
                     <button

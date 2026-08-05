@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Search, MapPin } from "lucide-react";
 
 export default function LocationSearch({
@@ -9,22 +9,9 @@ export default function LocationSearch({
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
+    const searchLocation = useCallback(async () => {
 
-        if (query.length < 3) {
-            setResults([]);
-            return;
-        }
-
-        const timer = setTimeout(() => {
-            searchLocation();
-        }, 500);
-
-        return () => clearTimeout(timer);
-
-    }, [query]);
-
-    const searchLocation = async () => {
+        if (query.length < 3) return;
 
         try {
 
@@ -48,7 +35,22 @@ export default function LocationSearch({
 
         }
 
-    };
+    }, [query]);
+
+    useEffect(() => {
+
+        if (query.length < 3) {
+            setResults([]);
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            searchLocation();
+        }, 500);
+
+        return () => clearTimeout(timer);
+
+    }, [query, searchLocation]);
 
     const selectLocation = (location) => {
 

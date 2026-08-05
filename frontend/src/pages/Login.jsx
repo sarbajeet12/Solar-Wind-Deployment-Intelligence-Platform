@@ -1,15 +1,24 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import api from "../services/api";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import AuthLayout from "../layouts/AuthLayout";
 
 function Login() {
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
             const formData = new URLSearchParams();
@@ -32,103 +41,104 @@ function Login() {
                 response.data.access_token
             );
 
-            alert("Login Successful!");
+            if (response.data.full_name) {
+                localStorage.setItem("user_name", response.data.full_name);
+            }
+
+            toast.success("Login Successful!");
 
             navigate("/dashboard");
 
         } catch (error) {
             console.error(error);
 
-            alert(
+            toast.error(
                 error.response?.data?.detail ||
                 "Invalid Username or Password"
             );
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100vh",
-                background: "#f5f5f5",
-            }}
-        >
-            <form
-                onSubmit={handleLogin}
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "320px",
-                    gap: "15px",
-                    background: "#fff",
-                    padding: "30px",
-                    borderRadius: "8px",
-                    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                }}
-            >
-                <h2 style={{ textAlign: "center" }}>
-                    Login
-                </h2>
-
-                <input
+        <AuthLayout subtitle="Sign in to access your deployment intelligence dashboards">
+            <form onSubmit={handleLogin} className="space-y-5">
+                <Input
+                    label="Email"
                     type="text"
-                    placeholder="Email"
+                    placeholder="you@example.com"
                     value={username}
-                    onChange={(e) =>
-                        setUsername(e.target.value)
-                    }
+                    onChange={(e) => setUsername(e.target.value)}
                     required
-                    style={{
-                        padding: "10px",
-                        fontSize: "16px",
-                    }}
+                    autoComplete="username"
+                    icon={<Mail size={18} />}
                 />
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) =>
-                        setPassword(e.target.value)
-                    }
-                    required
-                    style={{
-                        padding: "10px",
-                        fontSize: "16px",
-                    }}
-                />
+                <div className="relative">
+                    <Input
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                        icon={<Lock size={18} />}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-[42px] text-slate-400 transition hover:text-white"
+                        aria-label="Toggle password visibility"
+                    >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                </div>
 
-                <button
-                    type="submit"
-                    style={{
-                        padding: "10px",
-                        background: "#1976d2",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        fontSize: "16px",
-                    }}
+                <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                 >
-                    Login
-                </button>
-
-                <p
-                    style={{
-                        textAlign: "center",
-                        marginTop: "10px",
-                    }}
-                >
-                    Don't have an account?{" "}
-                    <Link to="/register">
-                        Register
-                    </Link>
-                </p>
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 size={18} className="animate-spin" />
+                                Signing in...
+                            </>
+                        ) : (
+                            <>
+                                Sign In
+                                <ArrowRight size={18} />
+                            </>
+                        )}
+                    </Button>
+                </motion.div>
             </form>
-        </div>
+
+            <div className="mt-6 text-center text-sm text-slate-400">
+                Don't have an account?{" "}
+                <Link
+                    to="/register"
+                    className="font-semibold text-cyan-400 transition hover:text-cyan-300"
+                >
+                    Create one free
+                </Link>
+            </div>
+
+            <div className="mt-6">
+                <Link
+                    to="/"
+                    className="block text-center text-xs text-slate-500 transition hover:text-slate-300"
+                >
+                    ← Back to home
+                </Link>
+            </div>
+        </AuthLayout>
     );
 }
 

@@ -1,3 +1,4 @@
+import LocationSearch from "../components/location/LocationSearch";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
@@ -26,6 +27,7 @@ export default function Analysis() {
     const [selectedSite, setSelectedSite] = useState("");
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState(null);
 
     useEffect(() => {
         fetchSites();
@@ -40,42 +42,38 @@ export default function Analysis() {
         }
     };
 
-    const analyzeSite = async () => {
+const analyzeSite = async () => {
 
-        if (!selectedSite) return;
+    if (!selectedLocation) return;
 
-        const site = sites.find(
-            (s) => s.id === parseInt(selectedSite)
+    setLoading(true);
+
+    try {
+
+        const res = await api.post(
+            "/analysis/report",
+            {
+                latitude: selectedLocation.latitude,
+                longitude: selectedLocation.longitude,
+            }
         );
 
-        setLoading(true);
+        setReport(res.data);
 
-        try {
+    } catch (err) {
 
-            const res = await api.post(
-                "/analysis/report",
-                {
-                    latitude: site.latitude,
-                    longitude: site.longitude,
-                }
-            );
+        console.error(err);
+        alert("Analysis failed.");
 
-            setReport(res.data);
+    }
 
-        } catch (err) {
+    setLoading(false);
 
-            console.error(err);
-            alert("Analysis failed.");
-
-        }
-
-        setLoading(false);
-
-    };
+};
 
     const resetAnalysis = () => {
         setReport(null);
-        setSelectedSite("");
+        setSelectedLocation(null);
     };
 
     return (
@@ -145,45 +143,65 @@ export default function Analysis() {
 
                         </div>
 
-                        <div className="flex flex-col md:flex-row gap-4">
+                        <div className="space-y-6">
 
-                            <select
-                                value={selectedSite}
-                                onChange={(e) =>
-                                    setSelectedSite(
-                                        e.target.value
-                                    )
-                                }
-                                className="flex-1 rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
-                            >
+                            <LocationSearch
+                                onLocationSelect={setSelectedLocation}
+                            />
 
-                                <option value="">
-                                    Select Site
-                                </option>
+                            {selectedLocation && (
 
-                                {sites.map((site) => (
+                                <div className="rounded-xl bg-slate-800 border border-slate-700 p-5">
 
-                                    <option
-                                        key={site.id}
-                                        value={site.id}
+                                    <h3 className="text-lg font-semibold text-cyan-400">
+                                        Selected Location
+                                    </h3>
+
+                                    <p className="mt-3 text-white">
+                                        {selectedLocation.name}
+                                    </p>
+
+                                    <div className="grid grid-cols-2 gap-6 mt-5">
+
+                                        <div>
+
+                                            <p className="text-slate-400">
+                                                Latitude
+                                            </p>
+
+                                            <p className="text-white font-semibold">
+                                                {selectedLocation.latitude}
+                                            </p>
+
+                                        </div>
+
+                                        <div>
+
+                                            <p className="text-slate-400">
+                                                Longitude
+                                            </p>
+
+                                            <p className="text-white font-semibold">
+                                                {selectedLocation.longitude}
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <Button
+                                        className="mt-6 w-full"
+                                        onClick={analyzeSite}
+                                        disabled={loading}
                                     >
-                                        {site.site_name}
-                                    </option>
+                                        {loading
+                                            ? "Analyzing..."
+                                            : "Analyze Location"}
+                                    </Button>
 
-                                ))}
+                                </div>
 
-                            </select>
-
-                            <Button
-                                onClick={analyzeSite}
-                                disabled={loading}
-                            >
-
-                                {loading
-                                    ? "Analyzing..."
-                                    : "Analyze"}
-
-                            </Button>
+                            )}
 
                         </div>
 

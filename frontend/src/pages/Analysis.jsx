@@ -446,6 +446,227 @@ const analyzeSite = async () => {
 
                     </Card>
 
+                    {/* Deployment Recommendation */}
+
+                    <Card
+                        hover={false}
+                        className="lg:col-span-2"
+                    >
+
+                        <div className="flex items-center gap-3 mb-6">
+
+                            <BadgeCheck
+                                className="text-cyan-400"
+                                size={28}
+                            />
+
+                            <h2 className="text-2xl font-bold text-white">
+                                Deployment Recommendation
+                            </h2>
+
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Recommended Deployment
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-cyan-400 mt-2">
+                                    {report.deployment.recommended_deployment}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Investment Risk
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-red-400 mt-2">
+                                    {report.deployment.investment_risk}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Deployment Priority
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-green-400 mt-2">
+                                    {report.deployment.deployment_priority}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Project Size
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-purple-400 mt-2">
+                                    {report.deployment.project_size}
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+                    </Card>
+                
+                    {/* Forecast */}
+
+                    <Card
+                        hover={false}
+                        className="lg:col-span-2"
+                    >
+
+                        <div className="flex items-center gap-3 mb-6">
+
+                            <Sun
+                                className="text-orange-400"
+                                size={28}
+                            />
+
+                            <h2 className="text-2xl font-bold text-white">
+                                Energy Forecast
+                            </h2>
+
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Future Potential
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-green-400 mt-2">
+                                    {report.forecast.future_potential}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Growth Trend
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-cyan-400 mt-2">
+                                    {report.forecast.growth_trend}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Forecast Confidence
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-yellow-400 mt-2">
+                                    {report.forecast.confidence}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Prediction
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-purple-400 mt-2">
+                                    {report.forecast.prediction}
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+                    </Card>
+                
+                {/* Investment Recommendation */}
+
+                    <Card
+                        hover={false}
+                        className="lg:col-span-2"
+                    >
+
+                        <div className="flex items-center gap-3 mb-6">
+
+                            <BadgeCheck
+                                className="text-green-400"
+                                size={28}
+                            />
+
+                            <h2 className="text-2xl font-bold text-white">
+                                Investment Recommendation
+                            </h2>
+
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Investment Decision
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-green-400 mt-2">
+                                    {report.investment.decision}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Estimated ROI
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-cyan-400 mt-2">
+                                    {report.investment.estimated_roi}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Investment Level
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-yellow-400 mt-2">
+                                    {report.investment.investment_level}
+                                </h2>
+
+                            </div>
+
+                            <div className="rounded-xl bg-slate-800 p-6">
+
+                                <p className="text-slate-400">
+                                    Payback Period
+                                </p>
+
+                                <h2 className="text-3xl font-bold text-purple-400 mt-2">
+                                    {report.investment.payback_period}
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+                    </Card>
 
                 {/* Interactive Map */}
 

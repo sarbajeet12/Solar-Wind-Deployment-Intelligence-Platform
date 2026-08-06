@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import api from "../services/api";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import AuthLayout from "../layouts/AuthLayout";
 
 function Register() {
     const navigate = useNavigate();
@@ -12,6 +18,9 @@ function Register() {
         role: "user",
     });
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -21,84 +30,144 @@ function Register() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
             await api.post("/auth/register", formData);
 
-            alert("Registration Successful!");
+            toast.success("Registration Successful!");
 
             navigate("/login");
         } catch (error) {
-            alert(
+            toast.error(
                 error.response?.data?.detail ||
                 "Registration Failed"
             );
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div style={{ padding: "30px" }}>
-            <h2>Register</h2>
-
-            <form onSubmit={handleRegister}>
-
-                <input
+        <AuthLayout subtitle="Create your account to get started">
+            <form onSubmit={handleRegister} className="space-y-5">
+                <Input
+                    label="Full Name"
                     type="text"
                     name="full_name"
-                    placeholder="Full Name"
+                    placeholder="John Doe"
                     value={formData.full_name}
                     onChange={handleChange}
                     required
+                    icon={<User size={18} />}
                 />
 
-                <br /><br />
-
-                <input
+                <Input
+                    label="Email"
                     type="email"
                     name="email"
-                    placeholder="Email"
+                    placeholder="you@example.com"
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    icon={<Mail size={18} />}
                 />
 
-                <br /><br />
+                <div className="relative">
+                    <Input
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        placeholder="••••••••"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        icon={<Lock size={18} />}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-[42px] text-slate-400 transition hover:text-white"
+                        aria-label="Toggle password visibility"
+                    >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                </div>
 
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                />
+                <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Account Type
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                        {[
+                            { value: "user", label: "User" },
+                            { value: "admin", label: "Admin" },
+                        ].map((opt) => (
+                            <label
+                                key={opt.value}
+                                className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-300 ${
+                                    formData.role === opt.value
+                                        ? "border-cyan-400/50 bg-cyan-400/10 text-cyan-300"
+                                        : "border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/20"
+                                }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value={opt.value}
+                                    checked={formData.role === opt.value}
+                                    onChange={handleChange}
+                                    className="sr-only"
+                                />
+                                {opt.label}
+                            </label>
+                        ))}
+                    </div>
+                </div>
 
-                <br /><br />
-
-                <select
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
+                <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                 >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                </select>
-
-                <br /><br />
-
-                <button type="submit">
-                    Register
-                </button>
-
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 size={18} className="animate-spin" />
+                                Creating account...
+                            </>
+                        ) : (
+                            <>
+                                Create Account
+                                <ArrowRight size={18} />
+                            </>
+                        )}
+                    </Button>
+                </motion.div>
             </form>
 
-            <br />
+            <div className="mt-6 text-center text-sm text-slate-400">
+                Already have an account?{" "}
+                <Link
+                    to="/login"
+                    className="font-semibold text-cyan-400 transition hover:text-cyan-300"
+                >
+                    Sign in
+                </Link>
+            </div>
 
-            <Link to="/login">
-                Already have an account? Login
-            </Link>
-
-        </div>
+            <div className="mt-6">
+                <Link
+                    to="/"
+                    className="block text-center text-xs text-slate-500 transition hover:text-slate-300"
+                >
+                    ← Back to home
+                </Link>
+            </div>
+        </AuthLayout>
     );
 }
 

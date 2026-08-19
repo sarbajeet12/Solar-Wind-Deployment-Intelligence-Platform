@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 from app.database.database import Base
 
@@ -32,3 +33,7 @@ class Site(Base):
         DateTime(timezone=True),
         server_default=func.now()
     )
+
+    project = relationship("Project", back_populates="sites")
+    analyses = relationship("AnalysisHistory", back_populates="site")
+    predictions = relationship("PredictionHistory", back_populates="site")

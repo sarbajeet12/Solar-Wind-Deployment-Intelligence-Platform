@@ -1,0 +1,28 @@
+MODEL PERFORMANCE COMPARISON
+============================
+
+Random Forest
+-------------
+R2 Score : 0.999599
+MAE      : 1051.8012
+MSE      : 3347044.2015
+RMSE     : 1829.4929
+
+XGBoost
+-------
+R2 Score : 0.999441
+MAE      : 1410.9124
+MSE      : 4669652.5000
+RMSE     : 2160.9379
+
+MODEL SELECTION
+---------------
+Selected Model : Random Forest
+Best R2 Score  : 0.999599
+
+Conclusion
+----------
+Random Forest achieved the highest R2 score and the lowest
+MAE, MSE, and RMSE compared with XGBoost. Therefore,
+Random Forest is selected as the final model for the
+prediction and inference pipeline.

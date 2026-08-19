@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.git/
+.gitignore
+.mypy_cache/
+.pytest_cache/
+.venv/
+venv/
+*.log
+.DS_Store

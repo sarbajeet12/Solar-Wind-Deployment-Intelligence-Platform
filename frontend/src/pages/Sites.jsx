@@ -1,6 +1,6 @@
 import Input from "../components/ui/Input";
 import { useEffect, useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import Button from "../components/ui/Button";
 import PageHeader from "../components/ui/PageHeader";
@@ -10,6 +10,7 @@ import AnimatedCounter from "../components/ui/AnimatedCounter";
 import Skeleton from "../components/ui/Skeleton";
 import SiteMap from "../components/map/SiteMap";
 import LocationSearch from "../components/location/LocationSearch";
+import PageBackButton from "../components/ui/PageBackButton";
 
 import {
     MapPinned,
@@ -33,7 +34,9 @@ function Sites() {
     const [sites, setSites] = useState([]);
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const [showForm, setShowForm] = useState(searchParams.get("new") === "1");
 
     const [formData, setFormData] = useState({
@@ -43,7 +46,7 @@ function Sites() {
         state: "",
         district: "",
         energy_type: "Solar",
-        project_id: "",
+        project_id: searchParams.get("projectId") || "",
         status: "Pending"
     });
 
@@ -63,11 +66,13 @@ function Sites() {
     }, []);
 
     const fetchSites = async () => {
+        setLoadError("");
         try {
             const response = await api.get("/sites/");
             setSites(response.data);
         } catch (error) {
             console.error(error);
+            setLoadError("Unable to load sites. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -79,6 +84,7 @@ function Sites() {
             setProjects(response.data);
         } catch (error) {
             console.error(error);
+            setLoadError("Unable to load the projects needed to create a site. Please try again.");
         }
     };
 
@@ -144,7 +150,7 @@ function Sites() {
                 setMessage("Site updated successfully.");
                 setIsError(false);
             } else {
-                await api.post("/sites/", {
+                const response = await api.post("/sites/", {
                     site_name: formData.site_name,
                     latitude: parseFloat(formData.latitude),
                     longitude: parseFloat(formData.longitude),
@@ -153,7 +159,8 @@ function Sites() {
                     energy_type: formData.energy_type,
                     project_id: parseInt(formData.project_id)
                 });
-                setMessage("Site created successfully.");
+                navigate(`/analysis?projectId=${formData.project_id}&siteId=${response.data.id}`);
+                return;
                 setIsError(false);
             }
             setFormData({
@@ -218,12 +225,14 @@ function Sites() {
         const p = projects.find((pr) => pr.id === Number(id));
         return p ? p.name : `Project #${id}`;
     };
+    const contextualProjectId = searchParams.get("projectId");
 
     const typeIcon = (t) => (t === "Solar" ? Sun : Wind);
     const typeColor = (t) => (t === "Solar" ? "from-yellow-400 to-orange-500" : "from-cyan-400 to-sky-500");
 
     return (
         <div className="min-h-screen bg-night-950 px-4 py-8 sm:px-6 lg:px-8">
+            {contextualProjectId && <PageBackButton label="Back to Project" onClick={() => navigate(`/projects/${contextualProjectId}`)} />}
             <PageHeader
                 badge="Sites"
                 title="Renewable Energy Sites"
@@ -284,6 +293,9 @@ function Sites() {
                         className="overflow-hidden"
                     >
                         <div className="glass-strong mt-8 rounded-3xl p-6 md:p-8">
+                            {contextualProjectId && <div className="mb-5 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3 text-sm text-cyan-100">You are adding this site to <strong>{projectName(contextualProjectId)}.</strong></div>}
+                            {!contextualProjectId && !isEditing && <div className="mb-5 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-sm text-amber-100">Select a project below before saving this site. Every site belongs to a project.</div>}
+                            {contextualProjectId && <PageBackButton label="Back to Project" onClick={() => navigate(`/projects/${contextualProjectId}`)} className="mb-3" />}
                             <div className="mb-6 flex items-center gap-3">
                                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 shadow-lg">
                                     <Sparkles className="text-white" size={22} />
@@ -419,6 +431,8 @@ function Sites() {
                     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                         {[...Array(6)].map((_, i) => <Skeleton key={i} />)}
                     </div>
+                ) : loadError ? (
+                    <div className="glass-strong rounded-3xl p-8 text-center"><p className="text-red-200">{loadError}</p><Button className="mt-5" onClick={() => { setLoading(true); fetchSites(); fetchProjects(); }}>Retry</Button></div>
                 ) : filtered.length === 0 ? (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.96 }}
@@ -487,6 +501,7 @@ function Sites() {
                                                     <Sparkles size={14} /> {site.energy_type}
                                                 </span>
                                                 <div className="flex gap-2">
+                                                    <button onClick={() => navigate(`/analysis?projectId=${site.project_id}&siteId=${site.id}`)} className="rounded-xl border border-cyan-400/30 px-3 text-xs font-medium text-cyan-300 hover:bg-cyan-400/10">View Site</button>
                                                     <button
                                                         onClick={() => handleEdit(site)}
                                                         className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/5 bg-white/[0.03] text-slate-300 transition hover:border-cyan-400/40 hover:text-cyan-300"

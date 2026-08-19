@@ -18,7 +18,8 @@ def get_location_details(latitude: float, longitude: float):
             },
             headers={
                 "User-Agent": "Solar-Wind-Deployment-Intelligence-Platform"
-            }
+            },
+            timeout=15,
         )
 
         if response.status_code != 200:

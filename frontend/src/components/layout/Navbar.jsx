@@ -49,7 +49,13 @@ function Navbar() {
 
     const logout = () => {
         localStorage.removeItem("access_token");
+        localStorage.removeItem("current_project_id");
         navigate("/login");
+    };
+
+    const startNewSite = () => {
+        const projectId = localStorage.getItem("current_project_id");
+        navigate(projectId ? `/sites?new=1&projectId=${projectId}` : "/sites?new=1");
     };
 
     return (
@@ -123,7 +129,7 @@ function Navbar() {
                             New Project
                         </button>
                         <button
-                            onClick={() => navigate("/sites?new=1")}
+                            onClick={startNewSite}
                             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:scale-105 hover:shadow-emerald-500/50"
                         >
                             <Plus size={16} />
@@ -202,7 +208,7 @@ function Navbar() {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: (navItems.length + 1) * 0.05 }}
-                                onClick={() => { setMobileOpen(false); navigate("/sites?new=1"); }}
+                                onClick={() => { setMobileOpen(false); startNewSite(); }}
                                 className="mt-1 flex w-full items-center gap-3 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/20"
                             >
                                 <Plus size={18} />

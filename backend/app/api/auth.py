@@ -17,7 +17,8 @@ from app.auth.password import (
     verify_password,
     create_access_token,
     get_current_user,
-    admin_required
+    admin_required,
+    normalize_email
 )
 
 router = APIRouter(
@@ -35,9 +36,11 @@ def test_auth():
 
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
+    normalized_email = normalize_email(user.email)
 
-    # Check if email already exists
-    existing_user = db.query(User).filter(User.email == user.email).first()
+    existing_user = db.query(User).filter(
+        User.email.ilike(normalized_email)
+    ).first()
 
     if existing_user:
         raise HTTPException(
@@ -45,10 +48,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
 
-    # Create new user
     new_user = User(
         full_name=user.full_name,
-        email=user.email,
+        email=normalized_email,
         hashed_password=hash_password(user.password),
         role=user.role
     )
@@ -66,9 +68,10 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
+    normalized_email = normalize_email(form_data.username)
 
     db_user = db.query(User).filter(
-        User.email == form_data.username
+        User.email.ilike(normalized_email)
     ).first()
 
     if not db_user:

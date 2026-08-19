@@ -15,7 +15,10 @@ def get_nasa_power_data(latitude: float, longitude: float):
         "format": "JSON"
     }
 
-    response = requests.get(BASE_URL, params=params)
+    try:
+        response = requests.get(BASE_URL, params=params, timeout=15)
+    except requests.RequestException:
+        return {"error": "Unable to fetch NASA POWER data"}
 
     if response.status_code != 200:
         return {

@@ -11,6 +11,8 @@ from app.database.database import Base, engine
 from app.models.user import User
 from app.models.project import Project
 from app.models.site import Site
+from app.models.analysis_history import AnalysisHistory
+from app.models.prediction_history import PredictionHistory
 
 Base.metadata.create_all(bind=engine)
 

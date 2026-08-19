@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { SunMedium, Globe, MessageCircle, Share2, Mail } from "lucide-react";
+import { SunMedium } from "lucide-react";
 
 function Footer() {
     return (
@@ -20,17 +20,6 @@ function Footer() {
                             Deployment Intelligence Platform for renewable energy
                             analytics, environmental assessment and smart site planning.
                         </p>
-<div className="mt-5 flex gap-3">
-                            {[Globe, MessageCircle, Share2, Mail].map((Icon, i) => (
-                                <a
-                                    key={i}
-                                    href="#"
-                                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 transition hover:text-cyan-300 hover:border-cyan-400/40 hover:-translate-y-1"
-                                >
-                                    <Icon size={16} />
-                                </a>
-                            ))}
-                        </div>
                     </div>
 
                     <div>
@@ -45,29 +34,6 @@ function Footer() {
                         </ul>
                     </div>
 
-                    <div>
-                        <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-white">
-                            Resources
-                        </h4>
-                        <ul className="mt-4 space-y-3 text-sm text-slate-400">
-                            <li><a href="#" className="hover:text-cyan-300 transition">Documentation</a></li>
-                            <li><a href="#" className="hover:text-cyan-300 transition">API Reference</a></li>
-                            <li><a href="#" className="hover:text-cyan-300 transition">Smart Grid</a></li>
-                            <li><a href="#" className="hover:text-cyan-300 transition">Deployment Guide</a></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-white">
-                            Company
-                        </h4>
-                        <ul className="mt-4 space-y-3 text-sm text-slate-400">
-                            <li><a href="#" className="hover:text-cyan-300 transition">About</a></li>
-                            <li><a href="#" className="hover:text-cyan-300 transition">Careers</a></li>
-                            <li><a href="#" className="hover:text-cyan-300 transition">Contact</a></li>
-                            <li><a href="#" className="hover:text-cyan-300 transition">Privacy</a></li>
-                        </ul>
-                    </div>
                 </div>
 
                 <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">

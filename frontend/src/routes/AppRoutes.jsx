@@ -15,6 +15,7 @@ const Sites = lazy(() => import("../pages/Sites"));
 const Profile = lazy(() => import("../pages/Profile"));
 const ChangePassword = lazy(() => import("../pages/ChangePassword"));
 const Analysis = lazy(() => import("../pages/Analysis"));
+const ProjectWorkspace = lazy(() => import("../pages/ProjectWorkspace"));
 
 import AppLayout from "../layouts/AppLayout";
 import Spinner from "../components/ui/Spinner";
@@ -80,6 +81,10 @@ function AppRoutes() {
                     />
 
 {/* Projects */}
+                    <Route
+                        path="/projects/:projectId"
+                        element={<ProtectedRoute><AppLayout><ProjectWorkspace /></AppLayout></ProtectedRoute>}
+                    />
                     <Route
                         path="/projects"
                         element={

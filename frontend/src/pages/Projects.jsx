@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
@@ -8,6 +8,7 @@ import Input from "../components/ui/Input";
 import TiltCard from "../components/ui/TiltCard";
 import AnimatedCounter from "../components/ui/AnimatedCounter";
 import Skeleton from "../components/ui/Skeleton";
+import PageBackButton from "../components/ui/PageBackButton";
 
 import {
     FolderKanban,
@@ -32,7 +33,9 @@ const STATUS_ORDER = ["Planning", "In Progress", "Completed", "Pending"];
 function Projects() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         name: "",
@@ -65,11 +68,13 @@ function Projects() {
     };
 
     const fetchProjects = async () => {
+        setLoadError("");
         try {
             const response = await api.get("/projects/");
             setProjects(response.data);
         } catch (error) {
             console.error(error);
+            setLoadError("Unable to load projects. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -114,13 +119,14 @@ function Projects() {
                 await api.put(`/projects/${editingId}`, formData);
                 showMessage("Project updated successfully.");
             } else {
-                await api.post("/projects/", {
+                const response = await api.post("/projects/", {
                     name: formData.name,
                     description: formData.description,
                     location: formData.location,
                     energy_type: formData.energy_type,
                 });
-                showMessage("Project created successfully.");
+                navigate(`/sites?new=1&projectId=${response.data.id}`);
+                return;
             }
             setFormData({ name: "", description: "", location: "", energy_type: "Solar", status: "Planning" });
             setEditingId(null);
@@ -248,6 +254,7 @@ function Projects() {
                         className="overflow-hidden"
                     >
                         <div className="glass-strong mt-8 rounded-3xl p-6 md:p-8">
+                            {!isEditing && <PageBackButton label="Back to Projects" onClick={cancelEdit} className="mb-3" />}
                             <div className="mb-6 flex items-center gap-3">
                                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 shadow-lg">
                                     <Sparkles className="text-white" size={22} />
@@ -396,6 +403,8 @@ function Projects() {
                     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                         {[...Array(6)].map((_, i) => <Skeleton key={i} />)}
                     </div>
+                ) : loadError ? (
+                    <div className="glass-strong rounded-3xl p-8 text-center"><p className="text-red-200">{loadError}</p><Button className="mt-5" onClick={() => { setLoading(true); fetchProjects(); }}>Retry</Button></div>
                 ) : filtered.length === 0 ? (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.96 }}
@@ -461,6 +470,7 @@ function Projects() {
                                                     <Layers size={14} /> {project.energy_type}
                                                 </span>
                                                 <div className="flex gap-2">
+                                                    <button onClick={() => navigate(`/projects/${project.id}`)} className="rounded-xl border border-cyan-400/30 px-3 text-xs font-medium text-cyan-300 hover:bg-cyan-400/10">View Project</button>
                                                     <button
                                                         onClick={() => handleEdit(project)}
                                                         className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/5 bg-white/[0.03] text-slate-300 transition hover:border-cyan-400/40 hover:text-cyan-300"

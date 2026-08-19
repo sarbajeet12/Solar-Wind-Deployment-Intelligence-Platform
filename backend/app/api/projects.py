@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.models.project import Project
 from app.models.user import User
+from app.models.site import Site
 
 from app.schemas.project import (
     ProjectCreate,
@@ -26,7 +27,7 @@ router = APIRouter(
 def create_project(
     project: ProjectCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(admin_required)
+    current_user: User = Depends(get_current_user)
 ):
     try:
         new_project = Project(
@@ -43,11 +44,8 @@ def create_project(
 
         return new_project
 
-    except Exception as e:
+    except Exception:
         db.rollback()
-        print("\n========== PROJECT CREATE ERROR ==========")
-        print(e)
-        print("==========================================\n")
         raise
 
 
@@ -56,7 +54,7 @@ def get_projects(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return db.query(Project).all()
+    return db.query(Project).filter(Project.created_by == current_user.id).all()
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
@@ -66,7 +64,8 @@ def get_project(
     current_user: User = Depends(get_current_user)
 ):
     project = db.query(Project).filter(
-        Project.id == project_id
+        Project.id == project_id,
+        Project.created_by == current_user.id
     ).first()
 
     if not project:
@@ -83,10 +82,11 @@ def update_project(
     project_id: int,
     updated_project: ProjectUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(admin_required)
+    current_user: User = Depends(get_current_user)
 ):
     project = db.query(Project).filter(
-        Project.id == project_id
+        Project.id == project_id,
+        Project.created_by == current_user.id
     ).first()
 
     if not project:
@@ -111,10 +111,11 @@ def update_project(
 def delete_project(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(admin_required)
+    current_user: User = Depends(get_current_user)
 ):
     project = db.query(Project).filter(
-        Project.id == project_id
+        Project.id == project_id,
+        Project.created_by == current_user.id
     ).first()
 
     if not project:

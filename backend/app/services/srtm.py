@@ -13,7 +13,8 @@ def get_elevation_data(latitude: float, longitude: float):
             BASE_URL,
             params={
                 "locations": f"{latitude},{longitude}"
-            }
+            },
+            timeout=15,
         )
 
         if response.status_code != 200:

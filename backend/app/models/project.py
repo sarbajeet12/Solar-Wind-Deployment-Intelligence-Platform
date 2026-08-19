@@ -31,4 +31,6 @@ class Project(Base):
         server_default=func.now()
     )
 
-    owner = relationship("User")
+    owner = relationship("User", back_populates="projects")
+    sites = relationship("Site", back_populates="project")
+    analyses = relationship("AnalysisHistory", back_populates="project")

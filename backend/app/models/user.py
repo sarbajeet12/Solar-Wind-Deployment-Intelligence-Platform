@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 from app.database.database import Base
 
@@ -23,3 +24,7 @@ class User(Base):
         DateTime(timezone=True),
         server_default=func.now()
     )
+
+    projects = relationship("Project", back_populates="owner")
+    analyses = relationship("AnalysisHistory", back_populates="owner")
+    predictions = relationship("PredictionHistory", back_populates="owner")

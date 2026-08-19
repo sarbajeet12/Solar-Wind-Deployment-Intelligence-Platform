@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.models.project import Project
 from app.models.site import Site
+from app.models.user import User
+from app.auth.password import get_current_user
 
 router = APIRouter(
     prefix="/dashboard",
@@ -12,25 +14,26 @@ router = APIRouter(
 
 
 @router.get("/stats")
-def dashboard_stats(db: Session = Depends(get_db)):
+def dashboard_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
 
-    total_projects = db.query(Project).count()
-    total_sites = db.query(Site).count()
+    owned_projects = db.query(Project).filter(Project.created_by == current_user.id)
+    total_projects = owned_projects.count()
+    total_sites = db.query(Site).join(Project).filter(Project.created_by == current_user.id).count()
 
-    solar_sites = db.query(Site).filter(
-        Site.energy_type == "Solar"
+    solar_sites = db.query(Site).join(Project).filter(
+        Project.created_by == current_user.id, Site.energy_type == "Solar"
     ).count()
 
-    wind_sites = db.query(Site).filter(
-        Site.energy_type == "Wind"
+    wind_sites = db.query(Site).join(Project).filter(
+        Project.created_by == current_user.id, Site.energy_type == "Wind"
     ).count()
 
-    pending_sites = db.query(Site).filter(
-        Site.status == "Pending"
+    pending_sites = db.query(Site).join(Project).filter(
+        Project.created_by == current_user.id, Site.status == "Pending"
     ).count()
 
-    completed_sites = db.query(Site).filter(
-        Site.status == "Completed"
+    completed_sites = db.query(Site).join(Project).filter(
+        Project.created_by == current_user.id, Site.status == "Completed"
     ).count()
 
     return {

@@ -21,8 +21,9 @@ function Login() {
         setLoading(true);
 
         try {
+            const normalizedEmail = username.trim();
             const formData = new URLSearchParams();
-            formData.append("username", username);
+            formData.append("username", normalizedEmail);
             formData.append("password", password);
 
             const response = await api.post(

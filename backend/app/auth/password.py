@@ -12,6 +12,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def normalize_email(email: str) -> str:
+    return email.strip().lower()
+
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
@@ -56,17 +60,11 @@ def get_current_user(
     )
 
     try:
-        print("\n========== AUTH DEBUG ==========")
-        print("Incoming Token:", token)
-
         payload = jwt.decode(
             token,
             SECRET_KEY,
             algorithms=[ALGORITHM]
         )
-
-        print("Payload:", payload)
-        print("===============================\n")
 
         email: str = payload.get("sub")
 
@@ -76,12 +74,12 @@ def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = db.query(User).filter(User.email == email).first()
+    normalized_email = normalize_email(email)
+    user = db.query(User).filter(User.email.ilike(normalized_email)).first()
 
     if user is None:
         raise credentials_exception
 
-    print("User Found:", user.email)
     return user
 
 def admin_required(
